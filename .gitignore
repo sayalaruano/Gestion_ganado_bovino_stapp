@@ -1,0 +1,6 @@
+pages/__pycache__
+Test.py
+poetry.lock
+pyproject.toml
+data/Animales_muertos_o_vendidos.csv
+data/Observaciones_animales.csv
