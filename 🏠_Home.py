@@ -22,8 +22,22 @@ with open('style.css') as f:
 @st.cache_data
 def load_data(file):
     file = pd.read_csv(file)
+
     # Convertir NumeroRP a string
     file['NumeroRP'] = file['NumeroRP'].astype(str)
+    
+    # Delete rows with nan values in all columns
+    file.dropna(how='all', inplace=True)
+    
+    # Delete rows with nan values in specific columns
+    # file.dropna(subset=['NumeroRP', 'Nombre', 'Raza', 'Sexo', 'Rodeo'], inplace=True)
+    
+    # Delete rows with "nan" string in specific columns
+    file = file[~file['NumeroRP'].str.contains('nan')]
+
+    # Resetear el indice
+    file.reset_index(drop=True, inplace=True)
+
     return file
 
 # Funcion para calcular la edad de un animal, en años y meses
@@ -40,10 +54,11 @@ def calculate_age_combined(birthdate):
 # Cargar los datos en el cache de la app. Esto se hará solo una vez y todas las páginas tendrán acceso a los datos
 if 'lista_completa_vacas' not in st.session_state:
     st.session_state.lista_completa_vacas = load_data("data/Lista_completa_vacas.csv")
+    
     # Converting 'Fecha_nacimiento' to datetime
-    st.session_state.lista_completa_vacas['Fecha_nacimiento'] = pd.to_datetime(st.session_state.lista_completa_vacas['Fecha_nacimiento'], format='%Y-%m-%d')
+    st.session_state.lista_completa_vacas['Fecha_nacimiento'] = pd.to_datetime(st.session_state.lista_completa_vacas['Fecha_nacimiento'], format='mixed')
 
-    # Applying the consolidated function
+    # Applying the function to calculate age
     st.session_state.lista_completa_vacas['Años'], st.session_state.lista_completa_vacas['Meses'], st.session_state.lista_completa_vacas['Edad'] = zip(*st.session_state.lista_completa_vacas['Fecha_nacimiento'].apply(calculate_age_combined))
 
 # Agregar un título e información sobre la app

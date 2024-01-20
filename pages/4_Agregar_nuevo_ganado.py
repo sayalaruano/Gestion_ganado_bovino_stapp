@@ -60,7 +60,7 @@ with st.form("form_nueva_vaca"):
             
             # Registrar el cambio en el archivo Resgistro_cambios_database.txt con el numero de rp, rodeo, y la fecha y hora del cambio
             with open("data/Registro_cambios_database.txt", "a") as f:
-                f.write(f'Se agregó la vaca con NumeroRP {numero_rp} al rodeo {rodeo} el {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}.\n')
+                f.write(f'Se agregó la vaca con NumeroRP {numero_rp} al rodeo {rodeo} el {datetime.now().strftime("%d/%m/%Y")}.\n')
             
             # Resetear el indice
             st.session_state.lista_completa_vacas.reset_index(drop=True, inplace=True)
