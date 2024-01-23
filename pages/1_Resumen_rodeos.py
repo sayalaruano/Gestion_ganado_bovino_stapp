@@ -48,10 +48,11 @@ st.data_editor(
 st.subheader('Resumen de ganado por rodeo')
 # Añadir un selectbox para seleccionar el rodeo, incluyendo las vacas vendidas y muertas
 rodeo_seleccionado = st.selectbox(
-    '',
+    ' ',
     numero_vacas_por_rodeo['Rodeo'].unique(),
     index=None,
     placeholder="Selecciona el rodeo",
+    label_visibility='collapsed',
 )
 
 # Mostrar el dataframe filtrado por el rodeo seleccionado

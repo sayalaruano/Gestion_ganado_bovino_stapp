@@ -28,6 +28,7 @@ st.subheader('Buscar el animal que se desea eliminar por su NumeroRP')
 numero_rp = st.text_input(
     'Ingresa el NumeroRP del animal',
     value='',
+    label_visibility='collapsed',
     max_chars=None,
     key=None,
     type='default'
@@ -66,6 +67,7 @@ st.subheader('Buscar el animal que se desea eliminar por su Nombre')
 nombre = st.text_input(
     'Ingresa el Nombre del animal',
     value='',
+    label_visibility='collapsed',
     max_chars=None,
     key=None,
     type='default'

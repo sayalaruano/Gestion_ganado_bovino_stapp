@@ -52,6 +52,7 @@ with col2:
         st.session_state.lista_completa_vacas['Rodeo'].unique(),
         index=None,
         placeholder="Selecciona el rodeo",
+        label_visibility='collapsed',
     )
 
     # Cambiar el rodeo del animal

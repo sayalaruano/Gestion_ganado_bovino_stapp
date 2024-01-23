@@ -29,9 +29,6 @@ def load_data(file):
     # Delete rows with nan values in all columns
     file.dropna(how='all', inplace=True)
     
-    # Delete rows with nan values in specific columns
-    # file.dropna(subset=['NumeroRP', 'Nombre', 'Raza', 'Sexo', 'Rodeo'], inplace=True)
-    
     # Delete rows with "nan" string in specific columns
     file = file[~file['NumeroRP'].str.contains('nan')]
 
