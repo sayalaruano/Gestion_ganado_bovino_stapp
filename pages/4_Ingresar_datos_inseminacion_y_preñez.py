@@ -24,8 +24,8 @@ st.title('App para Gestión de Ganado Bovino')
 
 st.write('''Los datos de esta aplicación son de uso exclusivo de la finca Mata Redonda.''')
 
-# Cambiar el rodeo de un animal por su NumeroRP
-st.subheader('Cambiar el rodeo de un animal por su NumeroRP')
+# Ingresar datos de inseminación y preñez
+st.subheader('Ingresar datos de inseminación y preñez')
 
 col1, col2 = st.columns(2)
 
@@ -49,40 +49,44 @@ with col1:
         )
 
 with col2:
-    # Añadir selectbox para seleccionar el rodeo
-    rodeo_seleccionado = st.selectbox(
-        'Selecciona el rodeo al que quieres cambiar el animal',
-        st.session_state.lista_completa_vacas['Rodeo'].unique(),
+    # Agragar date input para ingresar la fecha de inseminación
+    fecha_insem = st.date_input(
+        'Ingresa la última fecha de inseminación (Año-Mes-Dia)',
+        value=datetime.now()
+    )
+
+    # Agregar selectbox para ingresar estado de preñez
+    estado_preñez = st.selectbox(
+        ' ',
+        ['Vacia', 'Preñada', 'Aborto'],
         index=None,
-        placeholder="Selecciona el rodeo",
+        placeholder="Selecciona el estado de preñez",
         label_visibility='collapsed',
     )
 
-    if rodeo_seleccionado == 'Animales vendidos' or rodeo_seleccionado == 'Animales muertos':
-        # Agragar un date input para ingresar la fecha de venta o muerte
-        fecha_muerte = st.date_input(
-            'Ingresa la fecha de venta o muerte (Año-Mes-Dia)',
-            value=datetime.now()
-        )
+    # Agregar text input para ingresar observactiones sobre inseminación y preñez
+    observaciones_insem = st.text_area(
+        'Ingresa observaciones sobre inseminación y preñez',
+        value='Nombre del toro o pajuela: \nRepeticiones: \nNúmero partos: \nOtras observaciones:',
+    )
 
     # Cambiar el rodeo del animal
-    if st.button('Cambiar el rodeo del animal'):
-        st.session_state.lista_completa_vacas.loc[st.session_state.lista_completa_vacas['NumeroRP'] == numero_rp, 'Rodeo'] = rodeo_seleccionado
+    if st.button('Agregar datos de inseminación y preñez'):
+        st.session_state.lista_completa_vacas.loc[st.session_state.lista_completa_vacas['NumeroRP'] == numero_rp, 'Fecha_ultima_inseminacion'] = fecha_insem
+        st.session_state.lista_completa_vacas.loc[st.session_state.lista_completa_vacas['NumeroRP'] == numero_rp, 'Estado_preñez'] = estado_preñez
+        st.session_state.lista_completa_vacas.loc[st.session_state.lista_completa_vacas['NumeroRP'] == numero_rp, 'Observaciones_inseminacion'] = observaciones_insem
 
         # Registrar el cambio en la pestaña de Registro de cambios
         # Crear un df con la información del cambio
         nuevo_cambio = {
-            'Cambio': f'Se cambió el rodeo del animal con NumeroRP {numero_rp} de {animal_NumeroRP["Rodeo"].values[0]} a {rodeo_seleccionado} el {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}.\n'
+            'Cambio': f'Se agregó datos de inseminación y preñez del animal con NumeroRP {numero_rp} el {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}.\n'
         }
         df = pd.DataFrame(nuevo_cambio, index=[0])
         
         # Juntar el df con la información del cambio con el df de la pestaña de Registro de cambios
         st.session_state.registro_cambios = pd.concat([df, st.session_state.registro_cambios], ignore_index=True)
-        
-        # Cambiar la fecha de muerte o venta del animal
-        st.session_state.lista_completa_vacas.loc[st.session_state.lista_completa_vacas['NumeroRP'] == numero_rp, 'Fecha_muerte_venta'] = fecha_muerte.strftime('%m/%d/%Y')
-        
-        # Mostrar el animal encontrado
+            
+        # Mostrar el animal modificado
         st.dataframe(
             st.session_state.lista_completa_vacas[st.session_state.lista_completa_vacas['NumeroRP'] == numero_rp],
             width = 1500,
@@ -103,4 +107,4 @@ with col2:
             data=st.session_state.lista_completa_vacas,
         )
 
-        st.success('Se cambió la vaca de rodeo.')
+        st.success('Se agregaron los datos de inseminación y preñez del animal con NumeroRP ' + numero_rp + ' correctamente.')

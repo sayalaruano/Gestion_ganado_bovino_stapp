@@ -4,3 +4,4 @@ poetry.lock
 pyproject.toml
 data/Animales_muertos_o_vendidos.csv
 data/Observaciones_animales.csv
+.streamlit/secrets.toml

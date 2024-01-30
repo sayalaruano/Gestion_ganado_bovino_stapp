@@ -1,5 +1,6 @@
 # Web app
 import streamlit as st
+from streamlit_gsheets import GSheetsConnection
 from datetime import datetime
 import pandas as pd
 
@@ -20,6 +21,8 @@ with open('style.css') as f:
 
 # Agregar un título e información sobre la app
 st.title('App para Gestión de Ganado Bovino')
+
+st.write('''Los datos de esta aplicación son de uso exclusivo de la finca Mata Redonda.''')
 
 # Buscar un animal por su NumeroRP
 st.subheader('Buscar el animal que se desea eliminar por su NumeroRP')
@@ -48,15 +51,34 @@ if st.button('Eliminar animal por NumeroRP'):
     # Eliminar el registro del animal
     st.session_state.lista_completa_vacas = st.session_state.lista_completa_vacas[st.session_state.lista_completa_vacas['NumeroRP'] != numero_rp]
 
-    # Registrar el cambio en el archivo Resgistro_cambios_database.txt con el numero de rp, rodeo, y la fecha y hora del cambio
-    with open("data/Registro_cambios_database.txt", "a") as f:
-        f.write(f'Se eliminó la vaca con NumeroRP {numero_rp} el {datetime.now().strftime("%d/%m/%Y")}.\n')
-    
     # Resetear el indice
     st.session_state.lista_completa_vacas.reset_index(drop=True, inplace=True)
 
-    # Exportar lista_completa_vacas a csv
-    st.session_state.lista_completa_vacas.to_csv("data/Lista_completa_vacas.csv", index=False)
+    # Registrar el cambio en la pestaña de Registro de cambios
+    # Crear un df con la información del cambio
+    nuevo_cambio = {
+        'Cambio': f'Se eliminó la vaca con NumeroRP {numero_rp} el {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}.\n'
+    }
+
+    df = pd.DataFrame(nuevo_cambio, index=[0])
+
+    # Crear un objecto de conexión
+    conn = st.connection("gsheets", type=GSheetsConnection)
+    
+    # Juntar el df con la información del cambio con el df de la pestaña de Registro de cambios
+    st.session_state.registro_cambios = pd.concat([df, st.session_state.registro_cambios], ignore_index=True)
+    
+    # Actualizar los datos de la pestaña de Registro de cambios
+    conn.update(
+        worksheet="Registro_cambios_basedatos",
+        data=st.session_state.registro_cambios,
+    )
+    
+    # Actualizar los datos de la pestaña de Lista_vacas
+    conn.update(
+        worksheet="Lista_vacas",
+        data=st.session_state.lista_completa_vacas,
+    )
     st.success('Vaca eliminada con éxito.')
 
 
@@ -86,24 +108,35 @@ st.dataframe(
 if st.button('Eliminar animal por Nombre'):
     # Eliminar el registro del animal
     st.session_state.lista_completa_vacas = st.session_state.lista_completa_vacas[st.session_state.lista_completa_vacas['Nombre'] != nombre]
-
-    # Registrar el cambio en el archivo Resgistro_cambios_database.txt con el numero de rp, rodeo, y la fecha y hora del cambio
-    with open("data/Registro_cambios_database.txt", "a") as f:
-        f.write(f'Se eliminó la vaca con Nombre {nombre} el {datetime.now().strftime("%d/%m/%Y")}.\n')
     
     # Resetear el indice
     st.session_state.lista_completa_vacas.reset_index(drop=True, inplace=True)
 
-    # Exportar lista_completa_vacas a csv
-    st.session_state.lista_completa_vacas.to_csv("data/Lista_completa_vacas.csv", index=False)
+        # Registrar el cambio en la pestaña de Registro de cambios
+    # Crear un df con la información del cambio
+    nuevo_cambio = {
+        'Cambio': f'Se eliminó la vaca con Nombre {nombre} el {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}.\n'
+    }
+
+    df = pd.DataFrame(nuevo_cambio, index=[0])
+
+    # Crear un objecto de conexión
+    conn = st.connection("gsheets", type=GSheetsConnection)
+    
+    # Juntar el df con la información del cambio con el df de la pestaña de Registro de cambios
+    st.session_state.registro_cambios = pd.concat([df, st.session_state.registro_cambios], ignore_index=True)
+    
+    # Actualizar los datos de la pestaña de Registro de cambios
+    conn.update(
+        worksheet="Registro_cambios_basedatos",
+        data=st.session_state.registro_cambios,
+    )
+    
+    # Actualizar los datos de la pestaña de Lista_vacas
+    conn.update(
+        worksheet="Lista_vacas",
+        data=st.session_state.lista_completa_vacas,
+    )
     st.success('Vaca eliminada con éxito.')
 
-st.sidebar.header('Datos')
-st.sidebar.write('Los datos de esta aplicación son de uso exclusivo de la finca Mata Redonda.')
-
-st.sidebar.header('Disponibilidad de código')
-st.sidebar.write('El código de este proyecto está disponible bajo la [licencia MIT](https://mit-license.org/) en este [repositorio GitHub](https://github.com/sayalaruano/Gestion_ganado_bovino_stapp). Si usas o modificas el códifo fuente de este proyecto, por favor provee las atribuciones correspondientes por el trabajo realizado.')
-
-st.sidebar.header('Contacto')
-st.sidebar.write('Si tienes algún comentario o sugerencia acerca de este proyecto, por favor [crea an issue](https://github.com/sayalaruano/Gestion_ganado_bovino_stapp/issues/new) en el repositorio de GitHub del proyecto.')
 

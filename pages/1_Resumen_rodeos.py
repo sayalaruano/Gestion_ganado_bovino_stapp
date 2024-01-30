@@ -43,7 +43,6 @@ st.data_editor(
     hide_index=True,
 )
 
-
 # Resumen de ganado  por rodeo
 st.subheader('Resumen de ganado por rodeo')
 # Añadir un selectbox para seleccionar el rodeo, incluyendo las vacas vendidas y muertas
@@ -110,13 +109,4 @@ pie_plot_razas.update_traces(
     )
 
 st.plotly_chart(pie_plot_razas, use_container_width=True)
-
-st.sidebar.header('Datos')
-st.sidebar.write('Los datos de esta aplicación son de uso exclusivo de la finca Mata Redonda.')
-
-st.sidebar.header('Disponibilidad de código')
-st.sidebar.write('El código de este proyecto está disponible bajo la [licencia MIT](https://mit-license.org/) en este [repositorio GitHub](https://github.com/sayalaruano/Gestion_ganado_bovino_stapp). Si usas o modificas el códifo fuente de este proyecto, por favor provee las atribuciones correspondientes por el trabajo realizado.')
-
-st.sidebar.header('Contacto')
-st.sidebar.write('Si tienes algún comentario o sugerencia acerca de este proyecto, por favor [crea an issue](https://github.com/sayalaruano/Gestion_ganado_bovino_stapp/issues/new) en el repositorio de GitHub del proyecto.')
     

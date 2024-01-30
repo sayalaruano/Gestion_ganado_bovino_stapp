@@ -19,6 +19,8 @@ with open('style.css') as f:
 # Agregar un título e información sobre la app
 st.title('App para Gestión de Ganado Bovino')
 
+st.write('''Los datos de esta aplicación son de uso exclusivo de la finca Mata Redonda.''')
+
 # Buscar un animal por su NumeroRP
 st.subheader('Buscar un animal por su NumeroRP')
 
@@ -60,13 +62,4 @@ st.dataframe(
     animal_Nombre,
     width = 1500,
     )
-
-st.sidebar.header('Datos')
-st.sidebar.write('Los datos de esta aplicación son de uso exclusivo de la finca Mata Redonda.')
-
-st.sidebar.header('Disponibilidad de código')
-st.sidebar.write('El código de este proyecto está disponible bajo la [licencia MIT](https://mit-license.org/) en este [repositorio GitHub](https://github.com/sayalaruano/Gestion_ganado_bovino_stapp). Si usas o modificas el códifo fuente de este proyecto, por favor provee las atribuciones correspondientes por el trabajo realizado.')
-
-st.sidebar.header('Contacto')
-st.sidebar.write('Si tienes algún comentario o sugerencia acerca de este proyecto, por favor [crea an issue](https://github.com/sayalaruano/Gestion_ganado_bovino_stapp/issues/new) en el repositorio de GitHub del proyecto.')
 
