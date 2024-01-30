@@ -45,11 +45,18 @@ def load_data_gsheets(worksheet_name):
 
         return file
     
-    elif worksheet_name == "Registro_cambios_basedatos":
+    elif worksheet_name == "Registro_cambios_ganado" or worksheet_name == "Registro_cambios_leche":
         file = conn.read(
             worksheet=worksheet_name,
             ttl = 0,
             usecols = list(range(1)),
+        )
+    
+    elif worksheet_name == "Produccion_leche":
+        file = conn.read(
+            worksheet=worksheet_name,
+            ttl = 0,
+            usecols = list(range(3)),
         )
         
         return file
@@ -70,15 +77,27 @@ def calculate_age_combined(birthdate):
 if 'lista_completa_vacas' not in st.session_state:
     st.session_state.lista_completa_vacas = load_data_gsheets("Lista_vacas")
     
-    # Converting 'Fecha_nacimiento' to datetime %Y/%m/%d %H:%M:%S
+    # Convertir 'Fecha_nacimiento' a datetime 
     st.session_state.lista_completa_vacas['Fecha_nacimiento'] = pd.to_datetime(st.session_state.lista_completa_vacas['Fecha_nacimiento'])
 
-    # Applying the function to calculate age
+    # Aplicar la función calculate_age_combined a la columna 'Fecha_nacimiento'
     st.session_state.lista_completa_vacas['Años'], st.session_state.lista_completa_vacas['Meses'], st.session_state.lista_completa_vacas['Edad'] = zip(*st.session_state.lista_completa_vacas['Fecha_nacimiento'].apply(calculate_age_combined))
 
 # Pestaña de registro de cambios
-if 'registro_cambios' not in st.session_state:
-    st.session_state.registro_cambios = load_data_gsheets("Registro_cambios_basedatos")
+if 'registro_cambios_ganado' not in st.session_state:
+    st.session_state.registro_cambios_ganado = load_data_gsheets("Registro_cambios_ganado")
+
+if 'producccion_leche' not in st.session_state:
+    st.session_state.producccion_leche = load_data_gsheets("Produccion_leche")
+
+    # Elimina filas donde 'Fecha' es nulo
+    st.session_state.producccion_leche = st.session_state.producccion_leche.dropna(subset=['Fecha'])
+
+    # Convertir 'Fecha' a datetime
+    st.session_state.producccion_leche['Fecha'] = pd.to_datetime(st.session_state.producccion_leche['Fecha'])
+
+if 'registro_cambios_leche' not in st.session_state:
+    st.session_state.registro_cambios_leche = load_data_gsheets("Registro_cambios_leche")
 
 # Agregar un título e información sobre la app
 st.title('App para Gestión de Ganado Bovino')

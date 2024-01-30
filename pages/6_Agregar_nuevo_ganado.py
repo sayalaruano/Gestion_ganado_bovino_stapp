@@ -85,12 +85,12 @@ with st.form("form_nueva_vaca"):
             conn = st.connection("gsheets", type=GSheetsConnection)
             
             # Juntar el df con la información del cambio con el df de la pestaña de Registro de cambios
-            st.session_state.registro_cambios = pd.concat([df, st.session_state.registro_cambios], ignore_index=True)
+            st.session_state.registro_cambios_ganado = pd.concat([df, st.session_state.registro_cambios_ganado], ignore_index=True)
             
             # Actualizar los datos de la pestaña de Registro de cambios
             conn.update(
-                worksheet="Registro_cambios_basedatos",
-                data=st.session_state.registro_cambios,
+                worksheet="Registro_cambios_ganado",
+                data=st.session_state.registro_cambios_ganado,
             )
             
             # Actualizar los datos de la pestaña de Lista_vacas
