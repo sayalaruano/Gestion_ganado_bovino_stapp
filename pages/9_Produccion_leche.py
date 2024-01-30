@@ -35,7 +35,7 @@ st.session_state.producccion_leche['Año'] = st.session_state.producccion_leche[
 año_seleccionado = st.selectbox(' ', 
                                 st.session_state.producccion_leche['Año'].unique(),
                                 index=None,
-                                placeholder="Selecciona el rodeo",
+                                placeholder="Selecciona el año",
                                 label_visibility='collapsed',)
 
 # Filtrar los datos de producción de leche por año
