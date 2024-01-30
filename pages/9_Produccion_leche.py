@@ -62,7 +62,8 @@ st.plotly_chart(prod_leche, use_container_width=True)
 st.subheader('Agregar datos de producción de leche')
 
 # Crear un widget para seleccionar la fecha
-fecha = st.date_input('Fecha', datetime.now())
+fecha = st.date_input('Fecha', datetime.now()).strftime('%Y-%m-%d')
+fecha = pd.to_datetime(fecha)
 
 # Crear un widget para ingresar la cantidad de leche producida
 cantidad = st.number_input('Cantidad (Litros)', min_value=0, max_value=1000, value=0, step=1)
