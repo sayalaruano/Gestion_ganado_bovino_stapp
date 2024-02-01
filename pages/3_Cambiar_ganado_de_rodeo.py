@@ -79,9 +79,10 @@ with col2:
         # Juntar el df con la información del cambio con el df de la pestaña de Registro de cambios
         st.session_state.registro_cambios_ganado = pd.concat([df, st.session_state.registro_cambios_ganado], ignore_index=True)
         
-        # Cambiar la fecha de muerte o venta del animal
-        st.session_state.lista_completa_vacas.loc[st.session_state.lista_completa_vacas['NumeroRP'] == numero_rp, 'Fecha_muerte_venta'] = fecha_muerte.strftime('%m/%d/%Y')
-        
+        if rodeo_seleccionado == 'Animales vendidos' or rodeo_seleccionado == 'Animales muertos':
+            # Cambiar la fecha de muerte o venta del animal
+            st.session_state.lista_completa_vacas.loc[st.session_state.lista_completa_vacas['NumeroRP'] == numero_rp, 'Fecha_muerte_venta'] = fecha_muerte.strftime('%m/%d/%Y')
+            
         # Mostrar el animal encontrado
         st.dataframe(
             st.session_state.lista_completa_vacas[st.session_state.lista_completa_vacas['NumeroRP'] == numero_rp],
