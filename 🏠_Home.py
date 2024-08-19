@@ -78,7 +78,7 @@ if 'lista_completa_vacas' not in st.session_state:
     st.session_state.lista_completa_vacas = load_data_gsheets("Lista_vacas")
     
     # Convertir 'Fecha_nacimiento' a datetime 
-    st.session_state.lista_completa_vacas['Fecha_nacimiento'] = pd.to_datetime(st.session_state.lista_completa_vacas['Fecha_nacimiento'])
+    st.session_state.lista_completa_vacas['Fecha_nacimiento'] = pd.to_datetime(st.session_state.lista_completa_vacas['Fecha_nacimiento'], format='mixed')
 
     # Aplicar la función calculate_age_combined a la columna 'Fecha_nacimiento'
     st.session_state.lista_completa_vacas['Años'], st.session_state.lista_completa_vacas['Meses'], st.session_state.lista_completa_vacas['Edad'] = zip(*st.session_state.lista_completa_vacas['Fecha_nacimiento'].apply(calculate_age_combined))

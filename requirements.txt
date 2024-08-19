@@ -1,7 +1,7 @@
 streamlit>1.30.0
-st-gsheets-connection>0.0.3
+st-gsheets-connection==0.1.0
 gspread==5.12.4
-pandas==1.5.3
+pandas
 plotly
 numpy
 scipy

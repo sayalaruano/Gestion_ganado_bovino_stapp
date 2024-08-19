@@ -56,6 +56,8 @@ if not animal_NumeroRP.empty:
         raza = st.text_input('Raza', value=animal_NumeroRP['Raza'].values[0])
         sexo = st.selectbox('Sexo', ['Hembra', 'Macho'], index=0)
         rodeo = animal_NumeroRP['Rodeo'].values[0]
+        nombremadre = st.text_input('Nombre de la madre', value=animal_NumeroRP['Nombre_Madre'].values[0])
+        numeromadre = st.text_input('Número de la madre', value=animal_NumeroRP['Numero_Madre'].values[0])
         fecha_ultima_insem_dt = pd.to_datetime(animal_NumeroRP['Fecha_ultima_inseminacion'].values[0])
         fecha_ultima_insem = st.text_input('Fecha Última Inseminación (Año-Mes-Dia)', value=fecha_ultima_insem_dt)
         estado_preñez = st.selectbox('Estado de preñez',  ['Vacia', 'Preñada', 'Aborto'], index=0)
@@ -80,6 +82,8 @@ if not animal_NumeroRP.empty:
                 "Raza": raza,
                 "Sexo": sexo,
                 "Rodeo": rodeo,
+                "Nombre_Madre": nombremadre,
+                "Numero_Madre": numeromadre,
                 "Fecha_ultima_inseminacion": fecha_ultima_insem,
                 "Estado_preñez": estado_preñez,
                 "Observaciones_inseminacion": observaciones_insem,

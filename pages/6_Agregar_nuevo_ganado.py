@@ -35,6 +35,8 @@ with st.form("form_nueva_vaca"):
     raza = st.text_input('Raza')
     sexo = st.selectbox('Sexo', ['Hembra', 'Macho'])
     rodeo = st.selectbox('Rodeo', st.session_state.lista_completa_vacas['Rodeo'].unique())
+    nombre_madre = st.text_input('Nombre de la madre')
+    numero_madre = st.text_input('Número de la madre')
     fecha_insem = st.date_input('Fecha de última inseminación (Año-Mes-Dia)', None)
     estado_preñez = st.selectbox('Estado de preñez',  ['Vacia', 'Preñada', 'Aborto'])
     observaciones_insem = st.text_area('Observaciones inseminación')
@@ -52,6 +54,8 @@ with st.form("form_nueva_vaca"):
             "Raza": raza,
             "Sexo": sexo,
             "Rodeo": rodeo,
+            "Nombre_Madre": nombre_madre,
+            "Numero_Madre": numero_madre,
             "Fecha_ultima_inseminacion": fecha_insem,
             "Estado_preñez": estado_preñez,
             "Observaciones_inseminacion": observaciones_insem,
