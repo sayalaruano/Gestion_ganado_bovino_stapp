@@ -79,15 +79,17 @@ if rodeo_seleccionado:
     # Crear bar plot con las edades de las vacas por rodeo seleccionado
     st.subheader("Edades de las vacas por rodeo")
 
+    # Filtrar el df por rodeo seleccionado
+    df_filt = st.session_state.lista_completa_vacas[
+        st.session_state.lista_completa_vacas["Rodeo"] == rodeo_seleccionado
+    ].copy()
+
+    # Asegurar que "Años" es numerico y eliminar NANs
+    df_filt = df_filt.dropna(subset=["Años"])
+    df_filt["Años"] = df_filt["Años"].astype(int)
+
     # Obtener el numero de vacas por Rodeo
-    edades_por_rodeo = (
-        st.session_state.lista_completa_vacas[
-            st.session_state.lista_completa_vacas["Rodeo"] == rodeo_seleccionado
-        ]
-        .groupby("Años")["NumeroRP"]
-        .count()
-        .reset_index()
-    )
+    edades_por_rodeo = df_filt.groupby("Años")["NumeroRP"].count().reset_index()
 
     # Renombrar las columnas
     edades_por_rodeo.columns = ["Años", "Numero_vacas"]
