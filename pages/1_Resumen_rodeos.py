@@ -98,16 +98,24 @@ if rodeo_seleccionado:
         edades_por_rodeo,
         x="Años",
         y="Numero_vacas",
+        labels={"Años": "Años", "Numero_vacas": "Numero de vacas"},
         opacity=0.8,
         color_discrete_sequence=px.colors.qualitative.Plotly,
     )
 
-    barplot_edades.update_layout(
-        xaxis=dict(title="Años", tickfont=dict(size=18), titlefont=dict(size=20)),
-        yaxis=dict(
-            title="Numero de vacas", tickfont=dict(size=18), titlefont=dict(size=20)
-        ),
-    ).update_xaxes(showgrid=False).update_yaxes(showgrid=False)
+    barplot_edades.update_xaxes(
+        showgrid=False, tickfont=dict(size=18), title_font=dict(size=20)
+    )
+    barplot_edades.update_yaxes(
+        showgrid=False, tickfont=dict(size=18), title_font=dict(size=20)
+    )
+
+    # barplot_edades.update_layout(
+    #    xaxis=dict(title="Años", tickfont=dict(size=18), titlefont=dict(size=20)),
+    #    yaxis=dict(
+    #        title="Numero de vacas", tickfont=dict(size=18), titlefont=dict(size=20)
+    #    ),
+    # ).update_xaxes(showgrid=False).update_yaxes(showgrid=False)
 
     st.plotly_chart(barplot_edades, use_container_width=True)
 
