@@ -43,20 +43,13 @@ with st.form("form_nueva_vaca"):
         "Jersey negra",
         "Pisanga",
         "Normanda",
-        "Otro",
     ]
     raza_seleccionada = st.selectbox(
-        "Raza",
+        "Raza - Si la raza no está en la lista, escribe el nombre en el cuado de texto",
         raza_opciones,
-        placeholder="Escoge la raza o si no está, selecciona Otro y escríbela",
+        placeholder="Escoge la raza o si no está escríbela en el cuadro de texto",
         accept_new_options=True,
     )
-
-    # Lógica para raza alternativa
-    # if raza_seleccionada == "Otro":
-    #    raza_final = st.text_input("Especifica la raza alternativa")
-    # else:
-    #    raza_final = raza_seleccionada
     sexo = st.selectbox("Sexo", ["Hembra", "Macho"])
     rodeo = st.selectbox(
         "Rodeo", st.session_state.lista_completa_vacas["Rodeo"].unique()
