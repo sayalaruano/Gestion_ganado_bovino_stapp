@@ -110,13 +110,6 @@ if rodeo_seleccionado:
         showgrid=False, tickfont=dict(size=18), title_font=dict(size=20)
     )
 
-    # barplot_edades.update_layout(
-    #    xaxis=dict(title="Años", tickfont=dict(size=18), titlefont=dict(size=20)),
-    #    yaxis=dict(
-    #        title="Numero de vacas", tickfont=dict(size=18), titlefont=dict(size=20)
-    #    ),
-    # ).update_xaxes(showgrid=False).update_yaxes(showgrid=False)
-
     st.plotly_chart(barplot_edades, use_container_width=True)
 
     # Crear pie plot con las razas por rodeo seleccionado
