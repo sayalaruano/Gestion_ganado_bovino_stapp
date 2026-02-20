@@ -45,9 +45,10 @@ with st.form("form_nueva_vaca"):
         "Normanda",
     ]
     raza_seleccionada = st.selectbox(
-        "Raza - Si la raza no está en la lista, escribe el nombre en el cuado de texto",
+        "Raza",
         raza_opciones,
-        placeholder="Escoge la raza o si no está escríbela en el cuadro de texto",
+        index=None,
+        placeholder="Escoge la raza, o si no está en la lista, escríbela",
         accept_new_options=True,
     )
     sexo = st.selectbox("Sexo", ["Hembra", "Macho"])
