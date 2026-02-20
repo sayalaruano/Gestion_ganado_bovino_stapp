@@ -36,7 +36,22 @@ with st.form("form_nueva_vaca"):
     fecha_nacimiento = st.date_input(
         "Fecha de Nacimiento (Año-Mes-Dia)", datetime.today()
     )
-    raza = st.text_input("Raza")
+    raza_opciones = [
+        "Holstein",
+        "Holstein rojo",
+        "Jersey",
+        "Jersey negra",
+        "Pisanga",
+        "Normanda",
+        "Otro",
+    ]
+    raza_seleccionada = st.selectbox("Raza", raza_opciones)
+
+    # Lógica para raza alternativa
+    if raza_seleccionada == "Otro":
+        raza_final = st.text_input("Especifica la raza alternativa")
+    else:
+        raza_final = raza_seleccionada
     sexo = st.selectbox("Sexo", ["Hembra", "Macho"])
     rodeo = st.selectbox(
         "Rodeo", st.session_state.lista_completa_vacas["Rodeo"].unique()
@@ -59,7 +74,7 @@ with st.form("form_nueva_vaca"):
             "Nombre": nombre,
             "Especie": especie,
             "Fecha_nacimiento": fecha_nacimiento.strftime("%m/%d/%Y"),
-            "Raza": raza,
+            "Raza": raza_final,
             "Sexo": sexo,
             "Rodeo": rodeo,
             "Nombre_Madre": nombre_madre,
