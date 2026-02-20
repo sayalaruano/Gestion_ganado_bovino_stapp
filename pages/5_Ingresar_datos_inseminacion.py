@@ -26,8 +26,8 @@ st.write(
     """Los datos de esta aplicación son de uso exclusivo de la finca Mata Redonda."""
 )
 
-# Ingresar datos de medicina y tratamientos
-st.subheader("Ingresar datos de medicina y tratamientos")
+# Ingresar datos de inseminación y preñez
+st.subheader("Ingresar datos de inseminación y preñez")
 
 col1, col2 = st.columns(2)
 
@@ -53,27 +53,26 @@ with col1:
     )
 
 with col2:
-    # Agragar date input para ingresar la fecha de tratamiento o medicina
-    fecha_medic = st.date_input(
-        "Ingresa la fecha de tratamiento o medicina (Año-Mes-Dia)", value=datetime.now()
+    # Ingresar datos de la inseminación
+    fecha_insem = st.date_input(
+        "Ingresa la fecha de inseminación (Año-Mes-Dia)", value=datetime.now()
     )
 
-    # Agregar text input para ingresar observactiones sobre tratamiento o medicina
-    observaciones_medic = st.text_area(
-        "Ingresa observaciones sobre el tratamiento o medicina",
-        value="Nombre medicina o tratamiento: \nTiempo tratamiento: \nOtras observaciones: \n",
+    observaciones_insem = st.text_area(
+        "Ingresa observaciones sobre la inseminación",
+        value="Nombre del toro o pajuela: \nRepeticiones: \nNúmero partos: \nOtras observaciones:",
     )
 
-    # Agregar datos de tratamientos o medicina del animal con el NumeroRP ingresado
-    if st.button("Agregar datos de tratamientos o medicina"):
+    # Agregar datos de inseminación del animal con el NumeroRP ingresado
+    if st.button("Agregar datos de inseminación"):
         st.session_state.lista_completa_vacas.loc[
             st.session_state.lista_completa_vacas["NumeroRP"] == numero_rp,
-            "Fecha_ultima_medicina",
-        ] = fecha_medic
+            "Fecha_ultima_inseminacion",
+        ] = fecha_insem
         st.session_state.lista_completa_vacas.loc[
             st.session_state.lista_completa_vacas["NumeroRP"] == numero_rp,
-            "Observaciones_medicina",
-        ] = observaciones_medic
+            "Observaciones_inseminacion",
+        ] = observaciones_insem
 
         # Registrar el cambio en la pestaña de Registro de cambios
         # Abrir conexión para leer y escribir en Google Sheets
@@ -81,18 +80,19 @@ with col2:
 
         # Leer el historial más reciente de la nube para evitar sobrescribir datos
         try:
-            historial_nube = conn.read(worksheet="Registro_cambios_ganado", ttl=0)
+            historial_nube = conn.read(worksheet="Registro_inseminacion", ttl=0)
         except:
             historial_nube = pd.DataFrame(columns=["Cambio"])
 
         # Crear un df con la información del cambio
         nuevo_cambio = {
-            "Cambio": f'Se agregó datos de tratamientos o medicina del animal con NumeroRP {numero_rp} el {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}.\n'
+            "Cambio": f'Se agregó datos de inseminación del animal con NumeroRP {numero_rp} el {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}.\n'
         }
         df = pd.DataFrame(nuevo_cambio, index=[0])
 
         # Juntar el df con la información del cambio con el df de la pestaña de Registro de cambios
-        st.session_state.registro_cambios_ganado = pd.concat(
+        # Concatenamos con historial_nube para asegurar la integridad del log
+        st.session_state.registro_inseminacion = pd.concat(
             [df, historial_nube], ignore_index=True
         ).dropna(how="all")
 
@@ -106,8 +106,8 @@ with col2:
 
         # Actualizar los datos de la pestaña de Registro de cambios
         conn.update(
-            worksheet="Registro_cambios_ganado",
-            data=st.session_state.registro_cambios_ganado,
+            worksheet="Registro_inseminacion",
+            data=st.session_state.registro_inseminacion,
         )
 
         # Actualizar los datos de la pestaña de Lista_vacas
@@ -117,7 +117,7 @@ with col2:
         )
 
         st.success(
-            "Se agregaron los datos de tratamientos o medicina del animal con NumeroRP "
+            "Se agregaron los datos de inseminación del animal con NumeroRP "
             + numero_rp
             + " correctamente."
         )
