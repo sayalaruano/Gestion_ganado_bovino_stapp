@@ -45,13 +45,18 @@ with st.form("form_nueva_vaca"):
         "Normanda",
         "Otro",
     ]
-    raza_seleccionada = st.selectbox("Raza", raza_opciones)
+    raza_seleccionada = st.selectbox(
+        "Raza",
+        raza_opciones,
+        placeholder="Escoge la raza o si no está, selecciona Otro y escríbela",
+        accept_new_options=True,
+    )
 
     # Lógica para raza alternativa
-    if raza_seleccionada == "Otro":
-        raza_final = st.text_input("Especifica la raza alternativa")
-    else:
-        raza_final = raza_seleccionada
+    # if raza_seleccionada == "Otro":
+    #    raza_final = st.text_input("Especifica la raza alternativa")
+    # else:
+    #    raza_final = raza_seleccionada
     sexo = st.selectbox("Sexo", ["Hembra", "Macho"])
     rodeo = st.selectbox(
         "Rodeo", st.session_state.lista_completa_vacas["Rodeo"].unique()
@@ -59,7 +64,9 @@ with st.form("form_nueva_vaca"):
     nombre_madre = st.text_input("Nombre de la madre")
     numero_madre = st.text_input("Número de la madre")
     fecha_insem = st.date_input("Fecha de última inseminación (Año-Mes-Dia)", None)
-    estado_preñez = st.selectbox("Estado de preñez", ["Vacia", "Preñada", "Aborto"])
+    estado_preñez = st.selectbox(
+        "Estado de preñez", ["Preñada", "Vacia", "Parida", "Aborto", "Seca"]
+    )
     observaciones_insem = st.text_area("Observaciones inseminación")
     observaciones_nacim = st.text_area("Observaciones nacimiento")
     fecha_ultima_medicina = st.date_input(
@@ -74,7 +81,7 @@ with st.form("form_nueva_vaca"):
             "Nombre": nombre,
             "Especie": especie,
             "Fecha_nacimiento": fecha_nacimiento.strftime("%m/%d/%Y"),
-            "Raza": raza_final,
+            "Raza": raza_seleccionada,
             "Sexo": sexo,
             "Rodeo": rodeo,
             "Nombre_Madre": nombre_madre,
