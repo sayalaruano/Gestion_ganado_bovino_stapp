@@ -93,7 +93,7 @@ with col2:
             meses_final = st.number_input(
                 "Ingresa meses estimados de preñez",
                 min_value=0.0,
-                max_value=12.0,
+                max_value=10.0,
                 step=0.5,
             )
 

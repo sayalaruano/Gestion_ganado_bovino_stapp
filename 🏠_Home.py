@@ -22,7 +22,6 @@ with open("style.css") as f:
 
 # Función para cargar los datos
 def load_data_gsheets(worksheet_name):
-
     # Crear un objeto de conexión
     conn = st.connection("gsheets", type=GSheetsConnection)
 
@@ -30,32 +29,26 @@ def load_data_gsheets(worksheet_name):
         file = conn.read(
             worksheet=worksheet_name,
             ttl=0,
-            usecols=list(range(17)),
+            usecols=list(range(23)),
         )
         # Convertir NumeroRP a string
         file["NumeroRP"] = file["NumeroRP"].astype(str)
 
-        # Delete rows with nan values in all columns
+        # Limpieza de datos - eliminar filas vacias y con "nan"
         file.dropna(how="all", inplace=True)
-
-        # Delete rows with "nan" string in specific columns
         file = file[~file["NumeroRP"].str.contains("nan")]
 
         # Resetear el indice
         file.reset_index(drop=True, inplace=True)
-
         return file
 
-    elif (
-        worksheet_name == "Registro_cambios_ganado"
-        or worksheet_name == "Registro_cambios_leche"
-    ):
+    elif worksheet_name.startswith("Registro_"):
+        # Carga genérica para hojas de registro de varios cambios
         file = conn.read(
             worksheet=worksheet_name,
             ttl=0,
-            usecols=list(range(1)),
+            usecols=[0],
         )
-
         return file
 
     elif worksheet_name == "Produccion_leche":
@@ -71,6 +64,9 @@ def load_data_gsheets(worksheet_name):
 # Funcion para calcular la edad de un animal, en años y meses
 # @st.cache_data
 def calculate_age_combined(birthdate):
+    if pd.isnull(birthdate):
+        return None, None, "N/A"
+
     today = datetime.today()
     years = (
         today.year
@@ -84,50 +80,47 @@ def calculate_age_combined(birthdate):
     return years, months, age_formatted
 
 
-# Cargar los datos en el cache de la app. Esto se hará solo una vez y todas las páginas tendrán acceso a los datos
-# Pestaña de lista de vacas
+# Cargar los datos en el cache de la app. Esto se hará solo una vez y todas
+# las páginas tendrán acceso a los datos
+# Pestaña de lista de vacas y cálculo de edades
 if "lista_completa_vacas" not in st.session_state:
-    st.session_state.lista_completa_vacas = load_data_gsheets("Lista_vacas")
+    df_vacas = load_data_gsheets("Lista_vacas")
 
     # Convertir 'Fecha_nacimiento' a datetime
-    st.session_state.lista_completa_vacas["Fecha_nacimiento"] = pd.to_datetime(
-        st.session_state.lista_completa_vacas["Fecha_nacimiento"], format="mixed"
+    df_vacas["Fecha_nacimiento"] = pd.to_datetime(
+        df_vacas["Fecha_nacimiento"], format="mixed", errors="coerce"
     )
 
-    # Aplicar la función calculate_age_combined a la columna 'Fecha_nacimiento'
-    (
-        st.session_state.lista_completa_vacas["Años"],
-        st.session_state.lista_completa_vacas["Meses"],
-        st.session_state.lista_completa_vacas["Edad"],
-    ) = zip(
-        *st.session_state.lista_completa_vacas["Fecha_nacimiento"].apply(
-            calculate_age_combined
-        )
-    )
+    # Aplicar la función de edad
+    res_edades = df_vacas["Fecha_nacimiento"].apply(calculate_age_combined)
+    df_vacas["Años"], df_vacas["Meses"], df_vacas["Edad"] = zip(*res_edades)
 
-# Pestaña de registro de cambios
-if "registro_cambios_ganado" not in st.session_state:
-    st.session_state.registro_cambios_ganado = load_data_gsheets(
-        "Registro_cambios_ganado"
-    )
+    st.session_state.lista_completa_vacas = df_vacas
 
+# Pestaña de producción de leche
 if "producccion_leche" not in st.session_state:
-    st.session_state.producccion_leche = load_data_gsheets("Produccion_leche")
+    df_leche = load_data_gsheets("Produccion_leche")
 
     # Elimina filas donde 'Fecha' es nulo
-    st.session_state.producccion_leche = st.session_state.producccion_leche.dropna(
-        subset=["Fecha"]
-    )
+    df_leche = df_leche.dropna(subset=["Fecha"])
 
     # Convertir 'Fecha' a datetime
-    st.session_state.producccion_leche["Fecha"] = pd.to_datetime(
-        st.session_state.producccion_leche["Fecha"]
-    )
+    df_leche["Fecha"] = pd.to_datetime(df_leche["Fecha"], errors="coerce")
+    st.session_state.producccion_leche = df_leche
 
-if "registro_cambios_leche" not in st.session_state:
-    st.session_state.registro_cambios_leche = load_data_gsheets(
-        "Registro_cambios_leche"
-    )
+# Pestañas de registro de cambios
+reg_cambios = {
+    "registro_cambios_ganado": "Registro_cambios_ganado",
+    "registro_prenez": "Registro_prenez",
+    "registro_inseminacion": "Registro_inseminacion",
+    "registro_medicina": "Registro_medicina",
+    "registro_cambios_leche": "Registro_cambios_leche",
+}
+
+for state_key, sheet_name in reg_cambios.items():
+    if state_key not in st.session_state:
+        st.session_state[state_key] = load_data_gsheets(sheet_name)
+
 
 # Agregar un título e información sobre la app
 st.title("App para Gestión de Ganado Bovino")
@@ -150,6 +143,6 @@ with st.expander("Acerca de esta aplicación"):
 
 st.subheader("Bienvenido/a!")
 st.info(
-    "Mira el resumen del ganado y los rodeos, gestiona los rodeos, o agrega/elimina ganado",
+    "Mira el resumen del ganado y los rodeos, gestiona los rodeos, eventos de preñez, inseminación o medicina, o agrega/elimina ganado",
     icon="👈",
 )
