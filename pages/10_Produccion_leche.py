@@ -56,15 +56,14 @@ prod_leche = px.line(
     produccion_leche_año,
     x="Fecha",
     y="Cantidad (Litros)",
+    labels={"Fecha": "Fecha", "Cantidad (Litros)": "Cantidad (Litros)"},
     color_discrete_sequence=px.colors.qualitative.Plotly,
 )
 
-prod_leche.update_layout(
-    xaxis=dict(title="Fecha", tickfont=dict(size=18), titlefont=dict(size=20)),
-    yaxis=dict(
-        title="Cantidad (Litros)", tickfont=dict(size=18), titlefont=dict(size=20)
-    ),
-).update_xaxes(showgrid=False).update_yaxes(showgrid=True)
+prod_leche.update_xaxes(
+    showgrid=False, tickfont=dict(size=18), title_font=dict(size=20)
+)
+prod_leche.update_yaxes(showgrid=True, tickfont=dict(size=18), title_font=dict(size=20))
 
 # Mostrar el grafico de linea
 st.plotly_chart(prod_leche, use_container_width=True)
