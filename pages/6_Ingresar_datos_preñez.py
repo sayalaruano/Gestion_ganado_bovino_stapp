@@ -88,6 +88,13 @@ with col2:
             )
             dias_transcurridos = (datetime.now().date() - f_insem_conf).days
             meses_final = round(dias_transcurridos / 30.44, 1)
+
+            # Actualizamos la fecha de inseminación
+            st.session_state.lista_completa_vacas.loc[
+                st.session_state.lista_completa_vacas["NumeroRP"] == numero_rp,
+                "Fecha_ultima_inseminacion",
+            ] = f_insem_conf
+
             st.info(f"Resultado: **{meses_final} meses** de preñez calculados.")
         else:
             meses_final = st.number_input(

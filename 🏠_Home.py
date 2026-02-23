@@ -62,7 +62,6 @@ def load_data_gsheets(worksheet_name):
 
 
 # Funcion para calcular la edad de un animal, en años y meses
-# @st.cache_data
 def calculate_age_combined(birthdate):
     if pd.isnull(birthdate):
         return None, None, "N/A"
@@ -80,6 +79,24 @@ def calculate_age_combined(birthdate):
     return years, months, age_formatted
 
 
+# Funcion para calcular meses de prenez a partir de la fecha de inseminación y el estado de preñez
+def calculate_pregnancy_months(row):
+    # Solo calculamos si el estado es "Preñada" y tiene fecha de inseminación
+    if row["Estado_preñez"] == "Preñada" and pd.notnull(
+        row["Fecha_ultima_inseminacion"]
+    ):
+        try:
+            # Aseguramos que sea datetime
+            f_insem = pd.to_datetime(row["Fecha_ultima_inseminacion"])
+            dias = (datetime.today() - f_insem).days
+            meses = round(dias / 30.44, 1)
+            # Limitamos a un máximo lógico de 10 meses
+            return min(meses, 10.0)
+        except:
+            return row["Meses_preñez"]  # Si hay error, mantiene lo que está en GS
+    return 0.0  # Si no está preñada, meses es 0
+
+
 # Cargar los datos en el cache de la app. Esto se hará solo una vez y todas
 # las páginas tendrán acceso a los datos
 # Pestaña de lista de vacas y cálculo de edades
@@ -94,6 +111,12 @@ if "lista_completa_vacas" not in st.session_state:
     # Aplicar la función de edad
     res_edades = df_vacas["Fecha_nacimiento"].apply(calculate_age_combined)
     df_vacas["Años"], df_vacas["Meses"], df_vacas["Edad"] = zip(*res_edades)
+
+    # Aplicar la función de cálculo de meses de preñez
+    df_vacas["Fecha_ultima_inseminacion"] = pd.to_datetime(
+        df_vacas["Fecha_ultima_inseminacion"], errors="coerce"
+    )
+    df_vacas["Meses_preñez"] = df_vacas.apply(calculate_pregnancy_months, axis=1)
 
     st.session_state.lista_completa_vacas = df_vacas
 
