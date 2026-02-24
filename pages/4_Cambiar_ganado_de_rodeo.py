@@ -74,6 +74,12 @@ with col2:
     # Cambiar el rodeo del animal
     if st.button("Cambiar el rodeo del animal"):
 
+        # Obtener nombre de animal para el registro
+        if not animal_NumeroRP.empty:
+            nombre_animal = animal_NumeroRP["Nombre"].values[0]
+        else:
+            nombre_animal = "Desconocido"
+
         # Abrir conexión para leer y escribir en Google Sheets
         conn = st.connection("gsheets", type=GSheetsConnection)
 
@@ -95,8 +101,11 @@ with col2:
             historial_nube = pd.DataFrame(columns=["Cambio"])
 
         # Crear y concatenar el nuevo mensaje
-        nuevo_texto = f'Se cambió el rodeo del animal con NumeroRP {numero_rp} de {animal_NumeroRP["Rodeo"].values[0]} a {rodeo_seleccionado} el {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}.\n'
-        df_nuevo = pd.DataFrame({"Cambio": [nuevo_texto]})
+        nuevo_cambio = {
+            "Cambio": f"Se cambió el rodeo a {nombre_animal} (NumeroRP {numero_rp}) de {animal_NumeroRP['Rodeo'].values[0]} a {rodeo_seleccionado}"
+            f'el {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}.\n'
+        }
+        df_nuevo = pd.DataFrame(nuevo_cambio, index=[0])
 
         # Juntar el df con la información del cambio con el df de la pestaña de Registro de cambios
         st.session_state.registro_cambios_ganado = pd.concat(

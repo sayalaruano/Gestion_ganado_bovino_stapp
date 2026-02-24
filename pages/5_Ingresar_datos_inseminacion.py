@@ -65,6 +65,12 @@ with col2:
 
     # Agregar datos de inseminación del animal con el NumeroRP ingresado
     if st.button("Agregar datos de inseminación"):
+
+        # Obtener nombre de animal para el registro
+        if not animal_NumeroRP.empty:
+            nombre_animal = animal_NumeroRP["Nombre"].values[0]
+        else:
+            nombre_animal = "Desconocido"
         st.session_state.lista_completa_vacas.loc[
             st.session_state.lista_completa_vacas["NumeroRP"] == numero_rp,
             "Fecha_ultima_inseminacion",
@@ -86,7 +92,8 @@ with col2:
 
         # Crear un df con la información del cambio
         nuevo_cambio = {
-            "Cambio": f'Se agregó datos de inseminación del animal con NumeroRP {numero_rp} el {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}.\n'
+            "Cambio": f"Se agregó datos de inseminación del animal {nombre_animal} (NumeroRP {numero_rp}) "
+            f'el {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}.\n'
         }
         df = pd.DataFrame(nuevo_cambio, index=[0])
 

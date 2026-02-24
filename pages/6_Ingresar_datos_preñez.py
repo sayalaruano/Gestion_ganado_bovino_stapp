@@ -115,6 +115,12 @@ with col2:
 
     # Agregar datos de preñez del animal con el NumeroRP ingresado
     if st.button("Actualizar diagnóstico de preñez"):
+
+        # Obtener nombre de animal para el registro
+        if not animal_NumeroRP.empty:
+            nombre_animal = animal_NumeroRP["Nombre"].values[0]
+        else:
+            nombre_animal = "Desconocido"
         # 1. Actualizar estado y meses
         st.session_state.lista_completa_vacas.loc[
             st.session_state.lista_completa_vacas["NumeroRP"] == numero_rp,
@@ -154,7 +160,9 @@ with col2:
         # Crear el log indicando el estado y la fecha si aplica
         detalle_fecha = f" con fecha {fecha_evento}" if fecha_evento else ""
         nuevo_cambio = {
-            "Cambio": f'Se actualizó diagnóstico a {estado_preñez}{detalle_fecha} (Meses: {meses_final}) para RP {numero_rp} el {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}.\n'
+            "Cambio": f"Se actualizó diagnóstico a {estado_preñez}{detalle_fecha} "
+            f"(Meses: {meses_final}) para el animal {nombre_animal} (NumeroRP {numero_rp}) "
+            f'el {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}.\n'
         }
         df = pd.DataFrame(nuevo_cambio, index=[0])
 
