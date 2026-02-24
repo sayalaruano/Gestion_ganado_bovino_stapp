@@ -89,12 +89,6 @@ with col2:
             dias_transcurridos = (datetime.now().date() - f_insem_conf).days
             meses_final = round(dias_transcurridos / 30.44, 1)
 
-            # Actualizamos la fecha de inseminación
-            st.session_state.lista_completa_vacas.loc[
-                st.session_state.lista_completa_vacas["NumeroRP"] == numero_rp,
-                "Fecha_ultima_inseminacion",
-            ] = f_insem_conf
-
             st.info(f"Resultado: **{meses_final} meses** de preñez calculados.")
         else:
             meses_final = st.number_input(
@@ -104,14 +98,10 @@ with col2:
                 step=0.5,
             )
 
-    elif estado_preñez == "Parida":
-        fecha_evento = st.date_input("Fecha del último parto", value=datetime.now())
-
-    elif estado_preñez == "Aborto":
-        fecha_evento = st.date_input("Fecha del último aborto", value=datetime.now())
-
-    elif estado_preñez == "Seca":
-        fecha_evento = st.date_input("Fecha del último secado", value=datetime.now())
+    elif estado_preñez in ["Parida", "Aborto", "Seca"]:
+        fecha_evento = st.date_input(
+            f"Fecha del último {estado_preñez.lower()}", value=datetime.now()
+        )
 
     # Agregar datos de preñez del animal con el NumeroRP ingresado
     if st.button("Actualizar diagnóstico de preñez"):
@@ -121,31 +111,44 @@ with col2:
             nombre_animal = animal_NumeroRP["Nombre"].values[0]
         else:
             nombre_animal = "Desconocido"
-        # 1. Actualizar estado y meses
-        st.session_state.lista_completa_vacas.loc[
-            st.session_state.lista_completa_vacas["NumeroRP"] == numero_rp,
-            "Estado_preñez",
-        ] = estado_preñez
-        st.session_state.lista_completa_vacas.loc[
-            st.session_state.lista_completa_vacas["NumeroRP"] == numero_rp,
-            "Meses_preñez",
-        ] = meses_final
 
-        # 2. Actualizar fechas específicas según el estado
-        if estado_preñez == "Parida":
+        # Calculo de fecha aproximada de parto para animales preñados
+        # Obtenemos la fecha de inseminación actual para no borrarla si no hay cambios
+        fecha_insem_actual = animal_NumeroRP["Fecha_ultima_inseminacion"].values[0]
+        fecha_aprox_parto = ""  # Valor por defecto
+
+        if estado_preñez == "Preñada":
+            if metodo_registro == "Calcular por fecha de inseminación":
+                # Usamos la fecha de inseminación confirmada arriba
+                # Gestación promedio: 283 días
+                f_parto = pd.to_datetime(f_insem_conf) + pd.Timedelta(days=283)
+                fecha_aprox_parto = f_parto.strftime("%d/%m/%Y")
+                fecha_insem_actual = f_insem_conf.strftime("%m/%d/%Y")
+            else:
+                # Si el ingreso es manual por meses estimados
+                # Calculamos cuánto falta para los 9.3 meses (aprox 283 días)
+                meses_faltantes = 9.3 - meses_final
+                dias_faltantes = meses_faltantes * 30.44
+                f_parto = datetime.now() + pd.Timedelta(days=int(dias_faltantes))
+                fecha_aprox_parto = f_parto.strftime("%d/%m/%Y")
+
+        # Actualizar datos de lista de vacas
+        st.session_state.lista_completa_vacas.loc[
+            st.session_state.lista_completa_vacas["NumeroRP"] == numero_rp,
+            [
+                "Estado_preñez",
+                "Meses_preñez",
+                "Fecha_aprox_parto",
+                "Fecha_ultima_inseminacion",
+            ],
+        ] = [estado_preñez, meses_final, fecha_aprox_parto, fecha_insem_actual]
+
+        # Actualizar fechas de eventos (Parida, Aborto, Seca)
+        if estado_preñez in ["Parida", "Aborto", "Seca"]:
+            columna_fecha = f"Fecha_ultimo_{estado_preñez.lower()}"
             st.session_state.lista_completa_vacas.loc[
                 st.session_state.lista_completa_vacas["NumeroRP"] == numero_rp,
-                "Fecha_ultimo_parto",
-            ] = fecha_evento.strftime("%m/%d/%Y")
-        elif estado_preñez == "Aborto":
-            st.session_state.lista_completa_vacas.loc[
-                st.session_state.lista_completa_vacas["NumeroRP"] == numero_rp,
-                "Fecha_ultimo_aborto",
-            ] = fecha_evento.strftime("%m/%d/%Y")
-        elif estado_preñez == "Seca":
-            st.session_state.lista_completa_vacas.loc[
-                st.session_state.lista_completa_vacas["NumeroRP"] == numero_rp,
-                "Fecha_ultimo_secado",
+                columna_fecha,
             ] = fecha_evento.strftime("%m/%d/%Y")
 
         # Registrar el cambio en la pestaña de Registro de cambios
@@ -187,5 +190,7 @@ with col2:
         conn.update(worksheet="Lista_vacas", data=st.session_state.lista_completa_vacas)
 
         st.success(
-            f"Se actualizó correctamente el estado a {estado_preñez} para el animal {numero_rp}."
+            f"✅ Se actualizó correctamente a {estado_preñez} para {nombre_animal} ({numero_rp})."
         )
+    else:
+        st.error("❌ No se encontró el animal. Verifica el NumeroRP.")
