@@ -31,9 +31,6 @@ numero_vacas_por_rodeo = (
 )
 numero_vacas_por_rodeo.columns = ["Rodeo", "Numero_vacas"]
 
-# Resetear el indice
-numero_vacas_por_rodeo.reset_index(drop=True, inplace=True)
-
 # Mostrar el dataframe
 st.data_editor(
     numero_vacas_por_rodeo,
@@ -47,42 +44,87 @@ st.data_editor(
     hide_index=True,
 )
 
-# Resumen de ganado  por rodeo
+# Resumen de ganado por rodeo
 st.subheader("Resumen de ganado por rodeo")
 # Añadir un selectbox para seleccionar el rodeo, incluyendo las vacas vendidas y muertas
 rodeo_seleccionado = st.selectbox(
-    " ",
+    "Selecciona el rodeo para ver detalles:",
     numero_vacas_por_rodeo["Rodeo"].unique(),
     index=None,
     placeholder="Selecciona el rodeo",
     label_visibility="collapsed",
 )
 
-# Mostrar el dataframe filtrado por el rodeo seleccionado
-st.data_editor(
-    st.session_state.lista_completa_vacas[
-        st.session_state.lista_completa_vacas["Rodeo"] == rodeo_seleccionado
-    ].reset_index(drop=True),
-    width=1500,
-    column_config={
-        "widgets": st.column_config.TextColumn(
-            f"Resumen de vacas por {rodeo_seleccionado}",
-            help=f"Resumen de vacas por {rodeo_seleccionado}",
-        )
-    },
-    hide_index=True,
-)
-
 # Verificar si un rodeo fue seleccionado antes de mostrar plots
 if rodeo_seleccionado:
-
-    # Crear bar plot con las edades de las vacas por rodeo seleccionado
-    st.subheader("Edades de las vacas por rodeo")
-
     # Filtrar el df por rodeo seleccionado
     df_filt = st.session_state.lista_completa_vacas[
         st.session_state.lista_completa_vacas["Rodeo"] == rodeo_seleccionado
     ].copy()
+
+    # Mostrar el dataframe filtrado por el rodeo seleccionado
+    df_filt["Meses_preñez"] = df_filt["Meses_preñez"].fillna(0)
+    st.dataframe(
+        df_filt,
+        width=1500,
+        column_config={
+            "Meses_preñez": st.column_config.ProgressColumn(
+                "Progreso Gestación",
+                help="Barra basada en los 9 meses de gestación bovina",
+                format="%.1f meses",
+                min_value=0,
+                max_value=9.0,  # El límite de la barra
+            ),
+        },
+        hide_index=True,
+    )
+
+    # Alertar si hay vacas con la barra de preñez casi llena (más de 8 meses)
+    proximas_parto = df_filt[df_filt["Meses_preñez"] >= 8]
+
+    if not proximas_parto.empty:
+        st.warning(
+            f"📢 **Recordatorio:** Tienes {len(proximas_parto)} vaca(s) a punto de parto (mas de 8 meses)"
+        )
+
+    # Crear un histograma de meses de preñez para las vacas preñadas del rodeo seleccionado
+    # Solo incluimos vacas que tienen meses de preñez calculados (mayores a 0)
+    df_preñadas_plot = df_filt[
+        (df_filt["Estado_preñez"] == "Preñada") & (df_filt["Meses_preñez"] > 0)
+    ]
+    # Crear plot solo si hay vacas preñadas con meses de preñez calculados
+    if not df_preñadas_plot.empty:
+        st.subheader("Meses de preñez de las vacas por rodeo")
+
+        # Contar el número de vacas por rango de meses de preñez
+        preñez_por_rodeo = (
+            df_preñadas_plot.groupby("Meses_preñez")["NumeroRP"].count().reset_index()
+        )
+        preñez_por_rodeo.columns = ["Meses_preñez", "Numero_vacas"]
+
+        # Crear el bar plot
+        barplot_preg = px.bar(
+            preñez_por_rodeo,
+            x="Meses_preñez",
+            y="Numero_vacas",
+            labels={
+                "Meses_preñez": "Meses de gestación",
+                "Numero_vacas": "Numero de vacas",
+            },
+            opacity=0.8,
+            color_discrete_sequence=["#27AE60"],
+        )
+
+        barplot_preg.update_xaxes(
+            showgrid=False, tickfont=dict(size=18), title_font=dict(size=20), dtick=1
+        )
+        barplot_preg.update_yaxes(
+            showgrid=False, tickfont=dict(size=18), title_font=dict(size=20)
+        )
+        st.plotly_chart(barplot_preg, use_container_width=True)
+
+    # Crear bar plot con las edades de las vacas por rodeo seleccionado
+    st.subheader("Edades de las vacas por rodeo")
 
     # Asegurar que "Años" es numerico y eliminar NANs
     df_filt = df_filt.dropna(subset=["Años"])
@@ -100,7 +142,7 @@ if rodeo_seleccionado:
         y="Numero_vacas",
         labels={"Años": "Años", "Numero_vacas": "Numero de vacas"},
         opacity=0.8,
-        color_discrete_sequence=px.colors.qualitative.Plotly,
+        color_discrete_sequence=["#2E86C1"],
     )
 
     barplot_edades.update_xaxes(
@@ -115,14 +157,7 @@ if rodeo_seleccionado:
     # Crear pie plot con las razas por rodeo seleccionado
     st.subheader("Razas por rodeo")
     # Obtener el numero de vacas por Rodeo
-    razas_por_rodeo = (
-        st.session_state.lista_completa_vacas[
-            st.session_state.lista_completa_vacas["Rodeo"] == rodeo_seleccionado
-        ]
-        .groupby("Raza")["NumeroRP"]
-        .count()
-        .reset_index()
-    )
+    razas_por_rodeo = df_filt.groupby("Raza")["NumeroRP"].count().reset_index()
     razas_por_rodeo.columns = ["Raza", "Numero_vacas"]
 
     pie_plot_razas = px.pie(
