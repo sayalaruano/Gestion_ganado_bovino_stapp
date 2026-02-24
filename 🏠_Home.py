@@ -197,26 +197,36 @@ st.info(
 
 st.subheader("⚠️ Alertas de Manejo")
 
-# Calculamos la fecha estimada para todas
-df_vacas["Fecha_aprox_parto"] = df_vacas.apply(calculate_expected_date_parto, axis=1)
+# Recuperar el dataframe del session_state
+df_alertas = st.session_state.lista_completa_vacas.copy()
 
-# Filtramos las que paren en los próximos 15 días
+# Asegurar que la columna existe y está calculada
+df_alertas["Fecha_aprox_parto"] = df_alertas.apply(
+    calculate_expected_date_parto, axis=1
+)
+
+# Filtrar fechas
 hoy = datetime.today().date()
 proximos_15 = hoy + pd.Timedelta(days=15)
 
-alertas_parto = df_vacas[
-    (df_vacas["Fecha_aprox_parto"] >= hoy)
-    & (df_vacas["Fecha_aprox_parto"] <= proximos_15)
-]
+# Convertir a datetime.date si es necesario para comparar correctamente
+df_alertas["Fecha_aprox_parto"] = pd.to_datetime(
+    df_alertas["Fecha_aprox_parto"]
+).dt.date
+
+alertas_parto = df_alertas[
+    (df_alertas["Fecha_aprox_parto"] >= hoy)
+    & (df_alertas["Fecha_aprox_parto"] <= proximos_15)
+].copy()
 
 if not alertas_parto.empty:
     st.error(f"Se aproximan {len(alertas_parto)} parto(s) en las próximas 2 semanas")
-    # Mostramos una tablita simple con lo importante
     st.dataframe(
         alertas_parto[["NumeroRP", "Nombre", "Rodeo", "Fecha_aprox_parto"]].sort_values(
             "Fecha_aprox_parto"
         ),
         hide_index=True,
+        use_container_width=True,
     )
 else:
     st.success("No hay partos programados para las próximas 2 semanas.")
