@@ -210,7 +210,7 @@ alertas_parto = df_vacas[
 ]
 
 if not alertas_parto.empty:
-    st.error(f"Se aproximan {len(alertas_parto)} partos en las próximas 2 semanas")
+    st.error(f"Se aproximan {len(alertas_parto)} parto(s) en las próximas 2 semanas")
     # Mostramos una tablita simple con lo importante
     st.dataframe(
         alertas_parto[["NumeroRP", "Nombre", "Rodeo", "Fecha_aprox_parto"]].sort_values(

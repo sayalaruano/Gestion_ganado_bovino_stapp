@@ -190,7 +190,7 @@ with col2:
         conn.update(worksheet="Lista_vacas", data=st.session_state.lista_completa_vacas)
 
         st.success(
-            f"✅ Se actualizó correctamente a {estado_preñez} para {nombre_animal} ({numero_rp})."
+            f"✅ Se actualizó correctamente el estado de preñez de {nombre_animal} ({numero_rp}) a {estado_preñez}."
         )
     else:
         st.error("❌ No se encontró el animal. Verifica el NumeroRP.")
