@@ -102,6 +102,26 @@ def calculate_pregnancy_months(row):
     return 0.0
 
 
+def calculate_expected_date_parto(row):
+    if row["Estado_preñez"] == "Preñada":
+        try:
+            hoy = datetime.today()
+            # 1. Si hay fecha de inseminación, sumamos 283 días
+            if pd.notnull(row["Fecha_ultima_inseminacion"]):
+                f_insem = pd.to_datetime(row["Fecha_ultima_inseminacion"])
+                return (f_insem + pd.Timedelta(days=283)).date()
+
+            # 2. Si NO hay fecha pero hay meses estimados
+            elif pd.notnull(row["Meses_preñez"]) and row["Meses_preñez"] > 0:
+                # Calculamos cuánto le falta para llegar a 9.3 meses (gestación completa)
+                meses_faltantes = 9.3 - row["Meses_preñez"]
+                dias_faltantes = meses_faltantes * 30.44
+                return (hoy + pd.Timedelta(days=int(dias_faltantes))).date()
+        except:
+            return None
+    return None
+
+
 # Cargar los datos en el cache de la app. Esto se hará solo una vez y todas
 # las páginas tendrán acceso a los datos
 # Pestaña de lista de vacas y cálculo de edades
@@ -174,3 +194,29 @@ st.info(
     "Mira el resumen del ganado y los rodeos, gestiona los rodeos, eventos de preñez, inseminación o medicina, o agrega/elimina ganado",
     icon="👈",
 )
+
+st.subheader("⚠️ Alertas de Manejo")
+
+# Calculamos la fecha estimada para todas
+df_vacas["Fecha_aprox_parto"] = df_vacas.apply(calculate_expected_date_parto, axis=1)
+
+# Filtramos las que paren en los próximos 15 días
+hoy = datetime.today().date()
+proximos_15 = hoy + pd.Timedelta(days=15)
+
+alertas_parto = df_vacas[
+    (df_vacas["Fecha_aprox_parto"] >= hoy)
+    & (df_vacas["Fecha_aprox_parto"] <= proximos_15)
+]
+
+if not alertas_parto.empty:
+    st.error(f"Se aproximan {len(alertas_parto)} partos en las próximas 2 semanas")
+    # Mostramos una tablita simple con lo importante
+    st.dataframe(
+        alertas_parto[["NumeroRP", "Nombre", "Rodeo", "Fecha_aprox_parto"]].sort_values(
+            "Fecha_aprox_parto"
+        ),
+        hide_index=True,
+    )
+else:
+    st.success("No hay partos programados para las próximas 2 semanas.")
