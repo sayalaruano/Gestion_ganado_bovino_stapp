@@ -81,20 +81,25 @@ def calculate_age_combined(birthdate):
 
 # Funcion para calcular meses de prenez a partir de la fecha de inseminación y el estado de preñez
 def calculate_pregnancy_months(row):
-    # Solo calculamos si el estado es "Preñada" y tiene fecha de inseminación
+    # Caso 1: Está preñada y hay fecha de inseminación (Cálculo automático)
     if row["Estado_preñez"] == "Preñada" and pd.notnull(
         row["Fecha_ultima_inseminacion"]
     ):
         try:
-            # Aseguramos que sea datetime
             f_insem = pd.to_datetime(row["Fecha_ultima_inseminacion"])
             dias = (datetime.today() - f_insem).days
             meses = round(dias / 30.44, 1)
-            # Limitamos a un máximo lógico de 10 meses
             return min(meses, 10.0)
         except:
-            return row["Meses_preñez"]  # Si hay error, mantiene lo que está en GS
-    return 0.0  # Si no está preñada, meses es 0
+            return row["Meses_preñez"]
+
+    # Caso 2: Está preñada pero no hay fecha de inseminación (Mantener lo ingresado manualmente)
+    elif row["Estado_preñez"] == "Preñada":
+        valor_actual = row["Meses_preñez"]
+        return valor_actual if pd.notnull(valor_actual) else 0.0
+
+    # Caso 3: No está preñada
+    return 0.0
 
 
 # Cargar los datos en el cache de la app. Esto se hará solo una vez y todas
